@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mini-todo
+  labels:
+    name: mini-todo
+    app: mini-todo-microservices

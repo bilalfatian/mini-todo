@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-service
+  namespace: mini-todo
 spec:
   replicas: 1
   selector:
@@ -12,6 +13,7 @@ spec:
       labels:
         app: user-service
     spec:
+      serviceAccountName: user-service-sa
       containers:
       - name: user-service
         image: fatianbilal/user-service:latest
@@ -26,3 +28,15 @@ spec:
           value: "password"
         - name: DB_NAME
           value: "userdb"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"

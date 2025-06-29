@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-postgres
+  namespace: mini-todo
 spec:
   replicas: 1
   selector:
@@ -12,6 +13,9 @@ spec:
       labels:
         app: user-postgres
     spec:
+      serviceAccountName: postgres-sa
+      securityContext:
+        fsGroup: 999
       containers:
       - name: postgres
         image: postgres:15
@@ -27,6 +31,16 @@ spec:
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
+        securityContext:
+          runAsUser: 999
+          runAsGroup: 999
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+          requests:
+            memory: "256Mi"
+            cpu: "150m"
       volumes:
       - name: postgres-storage
         emptyDir: {}
@@ -35,6 +49,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: user-postgres
+  namespace: mini-todo
 spec:
   selector:
     app: user-postgres

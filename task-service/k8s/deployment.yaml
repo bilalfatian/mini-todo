@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: task-service
+  namespace: mini-todo
 spec:
   replicas: 1
   selector:
@@ -12,6 +13,7 @@ spec:
       labels:
         app: task-service
     spec:
+      serviceAccountName: task-service-sa
       containers:
       - name: task-service
         image: fatianbilal/task-service:latest
@@ -19,7 +21,7 @@ spec:
         - containerPort: 3001
         env:
         - name: USER_SERVICE_URL
-          value: "http://user-service"
+          value: "http://user-service.mini-todo"
         - name: DB_HOST
           value: "task-postgres"
         - name: DB_USER
@@ -28,3 +30,15 @@ spec:
           value: "password"
         - name: DB_NAME
           value: "taskdb"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"

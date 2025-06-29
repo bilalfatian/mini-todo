@@ -1,0 +1,82 @@
+# Role pour les services applicatifs
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: mini-todo
+  name: app-service-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+
+---
+# Role pour PostgreSQL
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: mini-todo
+  name: postgres-role
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims", "persistentvolumes"]
+  verbs: ["get", "list", "watch", "create"]
+- apiGroups: [""]
+  resources: ["secrets", "configmaps"]
+  verbs: ["get", "list"]
+
+---
+# RoleBinding pour user-service
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: user-service-binding
+  namespace: mini-todo
+subjects:
+- kind: ServiceAccount
+  name: user-service-sa
+  namespace: mini-todo
+roleRef:
+  kind: Role
+  name: app-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# RoleBinding pour task-service
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: task-service-binding
+  namespace: mini-todo
+subjects:
+- kind: ServiceAccount
+  name: task-service-sa
+  namespace: mini-todo
+roleRef:
+  kind: Role
+  name: app-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# RoleBinding pour PostgreSQL
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgres-binding
+  namespace: mini-todo
+subjects:
+- kind: ServiceAccount
+  name: postgres-sa
+  namespace: mini-todo
+roleRef:
+  kind: Role
+  name: postgres-role
+  apiGroup: rbac.authorization.k8s.io
